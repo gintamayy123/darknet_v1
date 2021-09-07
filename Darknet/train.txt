@@ -1,0 +1,66 @@
+1.修改/home/yolo/project/train/src_repo/projects/data/gene_labels.py
+	url
+	data_name
+	图片格式
+2.修改/home/yolo/project/train/src_repo/projects/src/utils.c
+	(279行)数据集名称
+3.修改/home/yolo/project/train/src_repo/projects/data/custon-data/custon-data.names，每一行为每类名称,修改custon-data.data，内容如下
+	classes=训练类别
+	train=训练集.txt文件地址
+	valid=验证集.txt文件地址
+	names=obj.names文件地址
+	backup = backup
+	
+4.修改/home/yolo/project/train/src_repo/projects/data/change_cfg.py
+	修改三个文件的存储位置
+5.修改/home/yolo/project/train/src_repo/projects/src/detector.c
+	(418行)存储log.txt文件位置	
+	(1588行)存储anchors.txt文件位置
+	
+4.修改/home/yolo/project/train/src_repo/projects/Makefile文件
+	
+5.复制yolov4-custom.cfg,并将文件名改为自己所需的名字，并修改如下选项
+	batch=64
+	subdivisions=16
+	max_batches=classes*2000,并不小于6000
+	width=416,height=416，使其为32的整数倍(第8，9行)
+	修改[yolo]中的classes=你的类别，共有三个地方需要修改（第970，1058，1146行）
+	修改[yolo]上的filters=(classes+5)x3（第963，1051，1139行）
+
+
+
+6.查看主干网络参数
+	yolov4-cfg,yolov4-custom.cfg:yolov4.conv.137
+	yolov4-tiny.cfg,yolov4-tiny-3l.cfg:yolov4-tiny.conv.29
+	yolov3.cfg,yolov3-spp.cfg:darknet53.conv.74
+	yolov3-tiny.cfg,yolov3-tiny-prn.cfg:yolov3-tiny.conv.11
+7.训练./darknet detector train data/obj.data yolo-obj.cfg yolov4.conv.137 
+	尾部增加
+		-map：训练显示map
+		-show_imgs：显示图片
+	
+	如在avg中存在nan，说明训练有问题，需要重新训练
+8.使用命令
+	map:检测map./darknet detector map data/obj.data yolo-obj.cfg backup/yolov4-xxxx.weights
+	test:画出边界框 ./darknet detector test data/obj.data yolo-obj.cfg backup/yolov4-xxxx.weights
+		-thresh 0.5 设置阈值
+		-ext_output 输出边界框
+		-dont_show 不显示过程
+		-out result.josn 输出为josn文件
+9.yolov3最大可检测大小为0.0061523*w*h
+10.对于416x416图片，欲训练目标小于16x16，则对cfg文件进行修改
+	layers=23（第896行）
+	stride=4（第893行）
+	stride=4（第991行）
+11.对于训练极大和极小的目标，使用
+	yolov3_5l.cfg
+	yolov4-tiny_3l.cfg
+	yolov4-custom.cfg
+12.对于区分左右的目标，在cfg中增加flip=0
+
+	将得到的结果覆盖[yolo]中的anchors
+
+
+
+
+src/net_work.c    detection_to_json输出json文件内容

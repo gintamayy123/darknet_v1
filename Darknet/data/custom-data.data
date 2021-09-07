@@ -1,0 +1,6 @@
+classes= 20
+train  = /home/yolo/project/voc/train.txt
+valid  = /home/yolo/project/voc/val.txt
+names = data/custom-data.names
+backup = /home/yolo/project/train/models/
+
